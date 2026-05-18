@@ -31,6 +31,23 @@ uv run python scripts/update_public_api_snapshot.py
 WORLDFORGE_UPDATE_PUBLIC_API_SNAPSHOT=1 uv run pytest tests/test_public_api_snapshot.py
 ```
 
+**Expected success signal.** Both commands exit `0` and rewrite
+`tests/fixtures/public_api/exports.json` with the new set of symbols.
+The pytest form additionally reports `1 passed` and prints a notice that
+the snapshot was rewritten when the env var is set; running the same
+test again without the env var must then pass with no diff.
+
+**First triage step on failure.** Re-run the test without the update
+flag and inspect the added/removed symbols in the diff:
+
+```bash
+uv run pytest tests/test_public_api_snapshot.py -q
+```
+
+The failure message lists each module and the per-module additions /
+removals; cross-check those against the intended public-surface change
+before deciding whether to update the snapshot or back out the change.
+
 Then update the changelog entry and (if a Stable symbol was added,
 renamed, or removed) revise this page so the Stable tier description
 stays accurate.
